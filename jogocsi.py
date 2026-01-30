@@ -8,6 +8,26 @@ import threading
 import textwrap
 from datetime import datetime
 
+import sys
+import os
+
+# --- FUNÇÃO OBRIGATÓRIA PARA O EXE FUNCIONAR ---
+def resource_path(relative_path):
+    try:
+        # PyInstaller cria uma pasta temporária e armazena o caminho em _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+# --- CONFIGURAÇÕES DE DIRETÓRIOS (USANDO A FUNÇÃO NOVA) ---
+# Em vez de usar DIRETORIO_RAIZ fixo, uso a função:
+PASTA_AUDIO = resource_path(os.path.join("assets", "audio"))
+PASTA_VIDEO = resource_path(os.path.join("assets", "video"))
+PASTA_DADOS = resource_path(os.path.join("data"))
+
+
 # --- CONFIGURAÇÕES GERAIS ---
 ARQUIVO_DADOS = "agentes_csi.json"
 MODO_OFFLINE = False 
@@ -28,163 +48,184 @@ class Cor:
     RESET = '\033[0m'
     NEGRITO = '\033[1m'
 
-# --- BANCO DE DADOS COMPLETO (RECUPERADO E CORRIGIDO) ---
-# ATENÇÃO: Agora está com apenas UM par de colchetes [ ] para não dar erro.
+# --- BANCO DE DADOS COMPLETO  ---
+
 
 ARQUETIPOS_COMPLETOS = [
   {
-    "nome": "O Guarda-Costas",
-    "video": "guarda_costas.mp4",
-    "visual": "terno preto e óculos escuros",
-    "personalidade": "reservado e profissional",
-    "relacao_com_vitima": "proteção pessoal diária",
-    "alibi": "estava fazendo a ronda externa",
-    "prova_alibi": "Registros do bastão de ronda eletrônico confirmam os horários.",
-    "luto": "O silêncio dele pesa mais que palavras. Ele aperta os punhos ao lembrar.",
-    "reacao_pressao": "responde curto, mantém postura rígida"
-  },
-  {
-    "nome": "O Sócio",
-    "video": "socio.mp4",
-    "visual": "terno preto e relógio de ouro",
-    "personalidade": "calculista e defensivo",
-    "relacao_com_vitima": "negócios e interesses financeiros",
-    "alibi": "reunião por chamada de vídeo",
-    "prova_alibi": "Log de conexão do Zoom e gravação da reunião na nuvem.",
-    "luto": "É uma perda enorme… para todos nós.",
-    "reacao_pressao": "tenta inverter a culpa com lógica fria"
-  },
-  {
-    "nome": "A Viúva",
-    "video": "viuva.mp4",
-    "visual": "vestido preto longo e véu",
-    "personalidade": "emocionalmente instável",
-    "relacao_com_vitima": "casamento conturbado",
-    "alibi": "sozinha no quarto",
-    "prova_alibi": "Histórico da Alexa: ela pediu músicas tristes às 23h40.",
-    "luto": "Não consigo aceitar que nunca mais vou ouvi-lo.",
-    "reacao_pressao": "chora, mas se fecha quando insistem"
-  },
-  {
-    "nome": "O Mordomo",
-    "video": "mordomo.mp4",
-    "visual": "luvas brancas impecáveis",
-    "personalidade": "discreto e observador",
-    "relacao_com_vitima": "serviço de longa data",
-    "alibi": "preparando o jantar",
-    "prova_alibi": "Câmera da cozinha mostra ele polindo a prataria sem parar.",
-    "luto": "Servi essa casa por anos… isso nunca deveria ter acontecido.",
-    "reacao_pressao": "responde educadamente, mas omite detalhes"
-  },
-  {
-    "nome": "O Jardineiro",
-    "video": "jardineiro.mp4",
-    "visual": "macacão sujo de terra",
-    "personalidade": "simples e nervoso",
-    "relacao_com_vitima": "empregado ocasional",
-    "alibi": "trabalhando no fundo do terreno",
-    "prova_alibi": "As ferramentas dele estão lá, e a terra está revirada fresca.",
-    "luto": "Ele sempre foi bom comigo.",
-    "reacao_pressao": "se confunde e entra em contradição"
-  },
-  {
-    "nome": "A Vizinha",
-    "video": "vizinha.mp4",
-    "visual": "roupão velho e binóculos",
-    "personalidade": "curiosa e intrometida",
-    "relacao_com_vitima": "observadora constante",
-    "alibi": "assistindo televisão",
-    "prova_alibi": "Ela descreve exatamente o comercial que passou na hora do crime.",
-    "luto": "Nunca pensei que veria algo assim da minha janela.",
-    "reacao_pressao": "fala demais, entrega informações sem perceber"
-  },
-  {
-    "nome": "O Hacker",
-    "video": "hacker.mp4",
-    "visual": "moletom com capuz e máscara",
-    "personalidade": "irônico e desconfiado",
-    "relacao_com_vitima": "prestador de serviços digitais",
-    "alibi": "online a noite inteira",
-    "prova_alibi": "Logs da Twitch mostram ele fazendo live stream sem interrupção.",
-    "luto": "Isso saiu totalmente do controle.",
-    "reacao_pressao": "desvia com sarcasmo"
-  },
-  {
-    "nome": "A Influencer",
-    "video": "influencer.mp4",
-    "visual": "roupa de festa e anel de luz",
-    "personalidade": "egocêntrica",
-    "relacao_com_vitima": "amizade por interesse",
-    "alibi": "live nas redes sociais",
-    "prova_alibi": "O vídeo está salvo no perfil dela com o timestamp correto.",
-    "luto": "Eu ainda estou em choque, sério.",
-    "reacao_pressao": "atua emocionalmente para convencer"
-  },
-  {
     "nome": "O Chef",
     "video": "chef.mp4",
-    "visual": "dólmã branco manchado",
+    "visuais_possiveis": [
+        "dólmã branco manchado",
+        "avental preto e bandana",
+        "uniforme de cozinha azul",
+        "camiseta branca suja de molho"
+    ],
     "personalidade": "orgulhoso e estressado",
     "relacao_com_vitima": "responsável pelas refeições",
-    "alibi": "na cozinha com a equipe",
-    "prova_alibi": "Dois assistentes confirmam que ele estava gritando com eles.",
+    "setup_alibi": [
+        {"onde": "na cozinha com a equipe", "prova": "Dois assistentes confirmam que ele estava gritando com eles."},
+        {"onde": "no estoque contando vinhos", "prova": "A planilha de estoque foi atualizada naquele horário."},
+        {"onde": "fumando nos fundos", "prova": "A câmera do beco gravou ele saindo para fumar."}
+    ],
     "luto": "Perdi o apetite desde então.",
     "reacao_pressao": "fica agressivo se questionado"
   },
+
   {
-    "nome": "A Bailarina",
-    "video": "bailarina.mp4",
-    "visual": "sapatilhas e tutu rasgado",
-    "personalidade": "sensível e retraída",
-    "relacao_com_vitima": "relacionamento secreto",
-    "alibi": "ensaiando sozinha",
-    "prova_alibi": "Sapatilhas gastas e suor recente, mas sem testemunhas visuais.",
-    "luto": "Tudo o que eu fazia era por ele.",
-    "reacao_pressao": "quebra emocionalmente rápido"
-  },
-  { 
-    "nome": "O Professor",
-    "video": "professor.mp4",
-    "visual": "camisa social e óculos",
-    "personalidade": "intelectual e reservado",
-    "relacao_com_vitima": "aluno antigo",
-    "alibi": "em casa lendo",
-    "prova_alibi": "Livros abertos e uma caneca de café na mesa.",
-    "luto": "Ele era meu mentor.",
-    "reacao_pressao": "fica calmo, mas evita responder"
-  },
-    { 
-    "nome": "A Artista",
-    "video": "artista.mp4",
-    "visual": "roupas coloridas e tinta",
-    "personalidade": "criativa e impulsiva",
-    "relacao_com_vitima": "cliente e musa",
-    "alibi": "pintando no estúdio",
-    "prova_alibi": "Tela molhada e cheiro de tinta fresca.",
-    "luto": "Ele inspirava minha arte.",
-    "reacao_pressao": "fala em metáforas e divaga"
+    "nome": "O Hacker",
+    "video": "hacker.mp4",
+    "visuais_possiveis": [
+        "moletom com capuz e máscara",
+        "camiseta de anime e óculos",
+        "roupa toda preta e luvas sem dedos",
+        "casaco cinza e fones de ouvido"
+    ],
+    "personalidade": "irônico e desconfiado",
+    "relacao_com_vitima": "prestador de serviços digitais",
+    "setup_alibi": [
+        {"onde": "online a noite inteira", "prova": "Logs da Twitch mostram ele em live stream."},
+        {"onde": "dormindo na sala de servidores", "prova": "O sensor de movimento não detectou saída."},
+        {"onde": "realizando manutenção remota", "prova": "Logs SSH mostram acesso contínuo ao sistema."}
+    ],
+    "luto": "Isso saiu totalmente do controle.",
+    "reacao_pressao": "desvia com sarcasmo"
   },
 
-  { 
-    "nome": "O Motorista",
-    "video": "motorista.mp4",
-    "visual": "uniforme de taxi e óculos escuros",
-    "personalidade": "calmo e observador",
-    "relacao_com_vitima": "cliente ocasional",
-    "alibi": "no trabalho",
-    "prova_alibi": "Relatório de corridas e GPS do veículo.",
-    "luto": "Ele era um cliente comum.",
-    "reacao_pressao": "fica nervoso, mas tenta manter a compostura"
+  {
+    "nome": "O Guarda-Costas",
+    "video": "guarda_costas.mp4",
+    "visuais_possiveis": [
+        "terno preto e óculos escuros",
+        "jaqueta tática e rádio no ombro",
+        "capa de chuva escura e luvas",
+        "camisa justa e coldre discreto"
+    ],
+    "personalidade": "reservado e profissional",
+    "relacao_com_vitima": "proteção pessoal diária",
+    "setup_alibi": [
+        {"onde": "na ronda externa", "prova": "Registro eletrônico marca os checkpoints."},
+        {"onde": "monitorando câmeras", "prova": "Login ativo na central de segurança."},
+        {"onde": "revistando veículos", "prova": "Portão registra abertura manual naquele horário."}
+    ],
+    "luto": "Falhei no meu dever.",
+    "reacao_pressao": "responde curto e evita detalhes"
   },
+
+  {
+    "nome": "A Viúva",
+    "video": "viuva.mp4",
+    "visuais_possiveis": [
+        "vestido preto longo e véu",
+        "roupão escuro e olhos inchados",
+        "vestido sóbrio e joias discretas",
+        "pijama de seda e lenço"
+    ],
+    "personalidade": "emocionalmente instável",
+    "relacao_com_vitima": "casamento conturbado",
+    "setup_alibi": [
+        {"onde": "sozinha no quarto", "prova": "Histórico da Alexa tocando músicas tristes."},
+        {"onde": "tomando banho", "prova": "O vapor ainda estava no espelho."},
+        {"onde": "ligando para uma amiga", "prova": "Registro de chamada longa no celular."}
+    ],
+    "luto": "Nada disso faz sentido sem ele.",
+    "reacao_pressao": "chora e se fecha"
+  },
+
+  {
+    "nome": "O Mordomo",
+    "video": "mordomo.mp4",
+    "visuais_possiveis": [
+        "uniforme clássico com luvas brancas",
+        "colete preto e camisa engomada",
+        "avental discreto e mangas dobradas",
+        "paletó antigo e gravata borboleta"
+    ],
+    "personalidade": "discreto e observador",
+    "relacao_com_vitima": "serviço de longa data",
+    "setup_alibi": [
+        {"onde": "preparando o jantar", "prova": "Câmera mostra ele na cozinha o tempo todo."},
+        {"onde": "polindo a prataria", "prova": "Talheres ainda estavam quentes do polimento."},
+        {"onde": "organizando a adega", "prova": "Garrafa aberta no horário do crime."}
+    ],
+    "luto": "Servi esta casa por décadas.",
+    "reacao_pressao": "educado, mas evasivo"
+  },
+
+  {
+    "nome": "O Médico",
+    "video": "medico.mp4",
+    "visuais_possiveis": [
+        "jaleco branco e estetoscópio",
+        "terno simples e pasta médica",
+        "camisa clara e mangas arregaçadas",
+        "roupa social com luvas descartáveis"
+    ],
+    "personalidade": "frio e analítico",
+    "relacao_com_vitima": "acompanhamento clínico",
+    "setup_alibi": [
+        {"onde": "em ligação de emergência", "prova": "Registro da central médica."},
+        {"onde": "examinando exames", "prova": "Arquivos abertos no computador."},
+        {"onde": "descansando no consultório", "prova": "Câmera interna ativa."}
+    ],
+    "luto": "Era apenas mais um paciente.",
+    "reacao_pressao": "responde tecnicamente"
+  },
+
+  {
+    "nome": "O Advogado",
+    "video": "advogado.mp4",
+    "visuais_possiveis": [
+        "terno caro e pasta de couro",
+        "camisa social sem gravata",
+        "paletó jogado no braço",
+        "óculos finos e relógio discreto"
+    ],
+    "personalidade": "articulado e defensivo",
+    "relacao_com_vitima": "assuntos jurídicos sensíveis",
+    "setup_alibi": [
+        {"onde": "em chamada confidencial", "prova": "Registro criptografado no celular."},
+        {"onde": "redigindo documentos", "prova": "Arquivo salvo minutos antes do crime."},
+        {"onde": "fumando na varanda", "prova": "Bituca encontrada no local."}
+    ],
+    "luto": "Isso complica muitas coisas.",
+    "reacao_pressao": "escolhe cada palavra"
+  }
 ]
+
 
 # Dados Complementares para evitar erros
 LOCAIS_EXPANDIDOS = ["Apartamento de Luxo", "Beco Escuro", "Sala de Servidores", "Estacionamento Subsolo", "Mansão na Serra", "Laboratório,quarto andar", "Cobertura Panorâmica", "Clube Noturno", "Escritório Corporativo", "Parque Abandonado, Centro da Cidade", "Restaurante Chique", "Hotel 5 Estrelas", "Bar da Esquina", "Galeria de Arte", "Cinema Privado"]
-TESTEMUNHAS_INICIAIS = ["o entregador", "uma vizinha", "o zelador", "um corredor", "a faxineira", "um segurança", "o porteiro", "um turista perdido", "a garçonete", "um ciclista", "o motorista de táxi", "um pedestre apressado", "a criança brincando", "o jardineiro", "o vendedor ambulante", "a fotógrafa", "o policial de ronda", "o morador local"]
-POSICOES_CORPO = ["caído de bruços", "sentado na poltrona", "estirado no chão", "escondido no armário", "encostado na parede", "deitado na cama", "ajoelhado no tapete", "em pé, encostado na mesa", "caído na escada", "dentro do carro", "no banheiro", "na varanda", "no porão", "na cozinha", "no jardim", "na garagem"]
-PISTAS_IRRELEVANTES = ["Embalagem de fast-food", "Relógio parado", "Marcas de lama", "Café morno", "Janela aberta", "Papel amassado", "Chave de fenda", "Garrafas vazias", "Roupas molhadas", "Cartão de visita rasgado", "Fios soltos", "Pegadas de sapato comum", "Bilhete anônimo", "Cigarro apagado", "Caneta sem tinta"]
 
-# --- SUBSTITA O CRIMES_DB ANTIGO POR ESTE ---
+TESTEMUNHAS_INICIAIS = ["o entregador", "uma vizinha", "o zelador", "um corredor", "a faxineira", "um segurança", "o porteiro", "um turista perdido", "a garçonete", "um ciclista", "o motorista de táxi", "um pedestre apressado", "a criança brincando", "o jardineiro", "o vendedor ambulante", "a fotógrafa", "o policial de ronda", "o morador local"]
+
+
+POSICOES_CORPO = ["caído de bruços", "sentado na poltrona", "estirado no chão", "escondido no armário", "encostado na parede", "deitado na cama", "ajoelhado no tapete", "em pé, encostado na mesa", "caído na escada", "dentro do carro", "no banheiro", "na varanda", "no porão", "na cozinha", "no jardim", "na garagem"]    
+
+# ---  BANCO DE PISTAS IRRELEVANTES  ---
+PISTAS_IRRELEVANTES = itens_encontrados = [
+    "Marcas de lama","Café morno","Janela aberta",
+    "Papel amassado","Chave de fenda","Garrafas vazias",
+    "Roupas molhadas","Cartão de visita rasgado","Fios soltos",
+    "Pegadas de sapato comum","Bilhete anônimo","Cigarro apagado",
+    "Caneta sem tinta","Óculos de sol","Chapéu esquecido",
+
+    "Embalagem de fast-food","Relógio parado","Jornal velho",
+    "Guardanapo sujo",
+
+    "Celular Bloqueado","Senha Anotada","Cofre Pequeno",
+    "Chave Enferrujada","Copo com Saliva","Kit de Coleta de DNA",
+
+    "HD Criptografado","Pen-drive 'CONFIDENCIAL'","Pendrive Oculto",
+    "Notebook","Central de Câmeras","Cartão de Acesso",
+
+    "Prontuário Rasgado","Lupa","Contrato Rasgado",
+    "Fita Adesiva","Carta Queimada","Luz Ultravioleta",
+    "Envelope Lacrado","Carta de Advogado","Gravação de Voz",
+    "Software de Áudio","Agenda Codificada","Tabela de Símbolos"
+]
+
+# ---  O CRIMES_DB  ---
 CRIMES_DB = [
     {
         "arma": "Arsênico (Veneno)", 
@@ -217,6 +258,30 @@ CRIMES_DB = [
         "pistas_relevantes": ["Fragmentos de vidro/metal no cabelo", "Mancha de sangue radial", "Objeto pesado fora do lugar"]
     }
 ]
+
+# --- SISTEMA DE NOTÍCIAS (TURNO A TURNO) ---
+MANCHETES_DB = {
+    "inicio": [
+        "URGENTE: Corpo encontrado. Polícia isola a área.",
+        "MISTÉRIO: Vizinhos relatam silêncio absoluto na hora do crime.",
+        "SEM PISTAS no momento, Delegado pede paciência à imprensa.",
+        "QUEM É A VÍTIMA? Redes sociais especulam teorias."
+    ],
+    "meio": [ # Aparece depois de 5 ações
+        "PRESSÃO AUMENTA: Prefeito cobra resultados rápidos.",
+        "MEDO NA VIZINHANÇA: Vendas de cadeados triplicam na cidade.",
+        "ASSASSINO ENTRE NÓS? Moradores evitam sair de casa.",
+        "VAZAMENTO: Fonte anônima diz que a polícia já tem um suspeito."
+    ],
+    "fim": [ # Aparece depois de 10 ações (O cerco fecha)
+        "CRISE NA SEGURANÇA: População exige a cabeça do Chefe de Polícia.",
+        "PÂNICO TOTAL: Rumores de que o assassino esta indo atras da Dona Neide.",
+        "ULTIMATO: Governador dá 24 horas para solução do caso.",
+        "aSSASSINO À SOLTA: Cidadãos formam grupos de vigilância noturna.",
+        "JUSTIÇA OU CAOS? Protestos marcados em frente à delegacia."
+    ]
+}
+
 # --- SISTEMAS VISUAIS (EFEITOS HACKER) ---
 def digitar(texto, velocidade=0.015, cor=Cor.VERDE_NEON):
     sys.stdout.write(cor)
@@ -252,17 +317,22 @@ except: TEM_ZAP = False
 # 1. DEFINIÇÃO DA CLASSE DE MÍDIA
 class MediaManager:
     def tocar_ambiente(self, nome):
-        if TEM_PYGAME and os.path.exists(nome):
+        # Monta o caminho completo: assets/audio/nome_do_arquivo
+        caminho_completo = os.path.join(PASTA_AUDIO, nome)
+        
+        if TEM_PYGAME and os.path.exists(caminho_completo):
             try: 
-                pygame.mixer.music.load(nome)
+                pygame.mixer.music.load(caminho_completo) # Usa o caminho completo
                 pygame.mixer.music.play(-1)
                 pygame.mixer.music.set_volume(0.4)
             except: pass
 
     def tocar_efeito(self, nome, loop=False):
-        if TEM_PYGAME and os.path.exists(nome):
+        caminho_completo = os.path.join(PASTA_AUDIO, nome) # Monta o caminho
+        
+        if TEM_PYGAME and os.path.exists(caminho_completo):
             try: 
-                som = pygame.mixer.Sound(nome)
+                som = pygame.mixer.Sound(caminho_completo) # Usa o caminho completo
                 som.play(-1 if loop else 0)
                 return som
             except: return None
@@ -334,20 +404,93 @@ media = MediaManager()
 # 3. DEFINIÇÃO DA CLASSE DE ÁUDIO (ANTES DE USAR!)
 class AudioSystem:
     def falar(self, texto):
-        limpo = texto.replace('*', '').replace('"', '')
-        arq = f"voz_{random.randint(1000,9999)}.mp3"
+        # Limpa o texto
+        limpo = texto.replace('*', '').replace('"', '').replace("'", "")
+        
+        # Gera nome temporário
+        nome_arq = f"temp_voz_{random.randint(1000,9999)}.mp3"
+        # Define o caminho para SALVAR DENTRO DA PASTA DE AUDIO (Organização)
+        caminho_final = os.path.join(PASTA_AUDIO, nome_arq)
+        
         try:
-            subprocess.run([sys.executable, "-m", "edge_tts", "--voice", "pt-BR-AntonioNeural", "--text", limpo, "--write-media", arq], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            if os.path.exists(arq) and TEM_PYGAME:
-                pygame.mixer.music.set_volume(0.1)
-                s = pygame.mixer.Sound(arq); s.play()
-                while pygame.mixer.get_busy(): time.sleep(0.1)
-                pygame.mixer.music.set_volume(0.4)
-                os.remove(arq)
+            # Cria o arquivo de áudio
+            subprocess.run([sys.executable, "-m", "edge_tts", "--voice", "pt-BR-AntonioNeural", "--text", limpo, "--write-media", caminho_final], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            
+            if os.path.exists(caminho_final) and TEM_PYGAME:
+                # Toca o áudio
+                pygame.mixer.music.set_volume(0.1) # Baixa o som de fundo
+                som = pygame.mixer.Sound(caminho_final)
+                som.play()
+                
+                # TRAVA O CÓDIGO ENQUANTO FALA (Essencial para não encavalar)
+                while pygame.mixer.get_busy(): 
+                    time.sleep(0.1)
+                
+                pygame.mixer.music.set_volume(0.4) # Restaura volume
+                
+                # Tenta deletar o arquivo para não sujar o PC
+                try:
+                    som.stop()
+                    del som
+                    os.remove(caminho_final)
+                except: pass # Se o Windows bloquear, pelo menos está na pasta audio escondido
         except: pass
 
 # 4. INSTANCIA O AUDIO SYSTEM (SÓ AGORA, QUE A CLASSE JÁ EXISTE)
 audio = AudioSystem()
+
+# --- SISTEMA DE VIGILÂNCIA (OMNI-VIEW) ---
+executando_cctv = False # Controle global para parar o vídeo quando sair
+
+def sistema_omni_view():
+    global executando_cctv
+    import cv2
+    
+    # DICA: Coloque nomes de vídeos curtos que você tenha na pasta assets/video
+    # Pode repetir o hacker.mp4 se não tiver outros por enquanto
+    videos_ambiente = ["hacker.mp4", "chiado.mp4", "camera1.mp4"] 
+    
+    janela_nome = "CENTRAL DE VIGILANCIA (AO VIVO)"
+    
+    # Configura a janela
+    cv2.namedWindow(janela_nome, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(janela_nome, 640, 360) 
+    # Tenta mover para o canto direito da tela (ajuste o 900 se precisar)
+    cv2.moveWindow(janela_nome, 900, 50) 
+
+    idx_video = 0
+    
+    while executando_cctv:
+        # Pega o vídeo atual da lista (Cíclico)
+        video_atual = videos_ambiente[idx_video % len(videos_ambiente)]
+        caminho = os.path.join(PASTA_VIDEO, video_atual)
+        
+        # Se o vídeo não existir, usa o hacker.mp4 como padrão para não travar
+        if not os.path.exists(caminho):
+            caminho = os.path.join(PASTA_VIDEO, "hacker.mp4")
+            
+        cap = cv2.VideoCapture(caminho)
+        
+        while cap.isOpened() and executando_cctv:
+            ret, frame = cap.read()
+            if not ret:
+                break # Fim do vídeo, loop reinicia ou vai pro próximo
+            
+            # Escreve "AO VIVO" no vídeo para parecer câmera de segurança
+            cv2.putText(frame, "REC AO VIVO", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            cv2.putText(frame, f"CAM-{random.randint(1,9)}", (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
+            
+            cv2.imshow(janela_nome, frame)
+            
+            # Espera 30ms (equivale a ~30 FPS)
+            if cv2.waitKey(30) & 0xFF == ord('q'):
+                executando_cctv = False
+                break
+        
+        cap.release()
+        idx_video += 1 # Próximo vídeo da lista
+        
+    cv2.destroyAllWindows()
 
 class InvestigationManager:
     def __init__(self, suspeitos, culpado):
@@ -355,6 +498,123 @@ class InvestigationManager:
         self.culpado = culpado
         self.contador_pressao = {s['nome']: 0 for s in suspeitos}
         self.inventario = []
+
+        # PLOT TWISTS MAIS COMPLEXOS
+        self.segredos = {
+                        "financeiro": "A Vítima lavava dinheiro para a Máfia Russa.",
+                        "pessoal": "Amanhã vou até a empresa e vou demitir 3 funcionários por justa causa.",
+                        "genetico": "O teste de DNA provou que a Vítima já estava morta há 2 dias (sósia?).",
+                        "digital": "A Vítima era, na verdade, um espião da ABIN infiltrado.",
+                        "medico": "O prontuário indica uma doença terminal escondida da família.",
+                        "juridico": "Um processo milionário estava prestes a ser revelado.",
+                        "emocional": "A Vítima mantinha um relacionamento secreto dentro da mansão.",
+                        "chantagem": "A Vítima estava sendo chantageada por fotos comprometedoras.",
+                        "seguranca": "O sistema de câmeras foi desligado manualmente por alguém autorizado.",
+                        "testamento": "O testamento foi alterado 24 horas antes da morte.",
+                        "funcionarios": "Um funcionário descobriu algo e exigiu dinheiro para ficar calado.",
+                        "mafioso": "A Vítima devia uma grande quantia a um grupo criminoso local."
+                    }
+
+    def combinar_itens(self):
+        # 1. O LIVRO DE RECEITAS (DICIONÁRIO)
+        # Estrutura: { ("Item 1", "Item 2") : "Resultado Final" }
+        receitas = {
+        ("Celular Bloqueado", "Senha Anotada"):
+            f"Celular Desbloqueado (SMS: '{self.segredos['pessoal']}')",
+
+        ("Cofre Pequeno", "Chave Enferrujada"):
+            f"Livro Caixa (REGISTRO: '{self.segredos['financeiro']}')",
+
+        ("Copo com Saliva", "Kit de Coleta de DNA"):
+            f"Laudo Laboratorial (RESULTADO: '{self.segredos['genetico']}')",
+
+        ("HD Criptografado", "Pen-drive 'CONFIDENCIAL'"):
+            f"Arquivos Descriptografados (ALERTA: '{self.segredos['digital']}')",
+
+        ("Prontuário Rasgado", "Lupa"):
+            f"Relatório Médico Completo (SEGREDO: '{self.segredos['medico']}')",
+
+        ("Contrato Rasgado", "Fita Adesiva"):
+            f"Documento Reconstruído (PROCESSO: '{self.segredos['juridico']}')",
+
+        ("Carta Queimada", "Luz Ultravioleta"):
+            f"Mensagem Oculta (CONFISSÃO: '{self.segredos['emocional']}')",
+
+        ("Pendrive Oculto", "Notebook"):
+            f"Fotos Recuperadas (CHANTAGEM: '{self.segredos['chantagem']}')",
+
+        ("Central de Câmeras", "Cartão de Acesso"):
+            f"Log de Segurança (FALHA: '{self.segredos['seguranca']}')",
+
+        ("Envelope Lacrado", "Carta de Advogado"):
+            f"Testamento Revelado (HERANÇA: '{self.segredos['testamento']}')",
+
+        ("Gravação de Voz", "Software de Áudio"):
+            f"Áudio Limpo (AMEAÇA: '{self.segredos['funcionarios']}')",
+
+        ("Agenda Codificada", "Tabela de Símbolos"):
+            f"Anotações Decifradas (DÍVIDA: '{self.segredos['mafioso']}')"
+    }
+        
+        # 2. MOSTRAR A LISTA PARA O JOGADOR
+        if len(self.inventario) < 2:
+            return "ERRO: Você precisa de pelo menos 2 itens no inventário.", False
+            
+        print("\nSELECIONE DOIS ITENS PARA COMBINAR:")
+        for i, item in enumerate(self.inventario):
+            print(f"[{i+1}] {item}")
+        
+        # 3. O JOGADOR ESCOLHE (INPUT MANUAL)
+        try:
+            print("\n--------------------------------")
+            escolha1 = int(input("Digite o número do 1º item: ")) - 1
+            escolha2 = int(input("Digite o número do 2º item: ")) - 1
+            print("--------------------------------")
+
+            # Verifica se os números existem na mochila
+            if escolha1 < 0 or escolha1 >= len(self.inventario) or \
+               escolha2 < 0 or escolha2 >= len(self.inventario) or \
+               escolha1 == escolha2:
+                return "ERRO: Escolha inválida ou itens iguais.", False
+            
+            # Pega os nomes dos itens baseados nos números
+            item_A = self.inventario[escolha1]
+            item_B = self.inventario[escolha2]
+            
+            print(f"TESTANDO: {item_A} + {item_B}...")
+            time.sleep(1) # Charme de processamento
+
+            # 4. A VERIFICAÇÃO (A LÓGICA MÁGICA)
+            novo_item = None
+            
+            # Varre todas as receitas para ver se o par existe
+            for (ingrediente1, ingrediente2), resultado in receitas.items():
+                # Verifica a ordem normal (A + B) OU a ordem invertida (B + A)
+                if (item_A == ingrediente1 and item_B == ingrediente2) or \
+                   (item_A == ingrediente2 and item_B == ingrediente1):
+                    novo_item = resultado
+                    break # Achou! Para de procurar.
+
+            # 5. RESULTADO
+            if novo_item:
+                # Remove os itens velhos
+                # Dica: Remover o maior index primeiro para não bagunçar a lista
+                if escolha1 > escolha2:
+                    self.inventario.pop(escolha1)
+                    self.inventario.pop(escolha2)
+                else:
+                    self.inventario.pop(escolha2)
+                    self.inventario.pop(escolha1)
+                
+                # Adiciona o novo
+                self.inventario.append(novo_item)
+                return f"SUCESSO! A combinação gerou:\n>> {novo_item}", True
+            else:
+                return "FALHA: Esses itens não reagem entre si.", False
+
+        except ValueError:
+            return "ERRO: Digite apenas números.", False
+
 
     def adicionar_item(self, item):
         if item not in self.inventario:
@@ -418,7 +678,9 @@ class InvestigationManager:
             # O assassino tem uma prova forjada "perfeita"
             return (f"DOCUMENTO: {alvo['prova_alibi']}\n"
                     f"[ANÁLISE]: O documento parece autêntico, mas a hora foi alterada manualmente.\n"
-                    f"(DICA: Pressione Dona Neide para confirmar se ele realmente estava lá.)")
+                    f"(DICA: Pressione Dona Neide para confirmar se ele realmente estava lá.)"
+                    f"(Sugestão: Verifique as câmeras de segurança para inconsistências.)")
+                    
         else:
             # Inocentes têm provas normais ou falhas honestas
             return f"DOCUMENTO: {alvo['prova_alibi']}\n[ANÁLISE]: A prova confirma a versão do suspeito."
@@ -455,35 +717,64 @@ class InvestigationManager:
         alvo = self.suspeitos[idx_suspeito]
         p_traits = alvo['personalidade'].lower()
         
-        # 1. CULPADO PEGO (Confissão)
+        # --- CENÁRIO 1: O CULPADO SENDO PEGO (O item é a prova real) ---
         if item_usado in detalhes_crime['pistas_relevantes'] and alvo == self.culpado:
-            self.contador_pressao[alvo['nome']] = 6
+            
+            # [REMOVIDO] Não aumentamos mais a pressão aqui.
+            # A pressão continua a mesma que estava antes.
+            
             return (f"(Os olhos de {alvo['nome']} se arregalam em pânico)\n"
                     f"\"Isso... Onde você achou isso? {item_usado}...\n"
                     f"Eu... eu posso explicar! Não é o que parece!\""), True 
 
-        # 2. INOCENTE VENDO PROVA REAL (Aqui entra a Novidade 3: Dica de Digitais)
+        # --- CENÁRIO 2: INOCENTE VENDO PROVA REAL ---
         elif item_usado in detalhes_crime['pistas_relevantes']:
             
-            # --- NOVIDADE 3: SISTEMA DE DIGITAIS ---
-            # O inocente analisa o item e dá uma dica visual do verdadeiro dono
-            dica_visual = self.culpado['visual'].split(' ')[0] # Ex: "Terno", "Vestido", "Luvas"
+            # [REMOVIDO] Também não aumentamos pressão para inocentes.
+            
+            dica_visual = self.culpado['visual'].split(' ')[0] 
             return (f"({alvo['nome']} examina o objeto com cuidado)\n"
                     f"\"Isso é prova do crime? Não é meu.\n"
                     f"Mas olhe aqui... tem uma mancha. Parece que foi tocado por alguém usando {dica_visual}.\""), False
 
-        # 3. ITEM LIXO (Personalidade Dinâmica que fizemos antes)
+        # --- CENÁRIO 3: ITEM INÚTIL (LIXO) ---
         else:
-            if "arrogante" in p_traits:
-                resp = f"\"Sério? Você interrompeu meu dia para me mostrar {item_usado}? Patético.\""
-            elif "nervoso" in p_traits:
-                resp = f"\"E-eu não sei o que é isso! Eu juro! É só {item_usado}!\""
-            elif "curiosa" in p_traits:
-                resp = f"\"Hmm, {item_usado}? Onde você achou? Posso tirar uma foto?\""
+            if "arrogante" in p_traits or "orgulhoso" in p_traits or "irônico" in p_traits:
+                respostas = [
+                    f"\"Sério? Você interrompeu meu dia para me mostrar {item_usado}? Patético.\"",
+                    f"\"Uau. {item_usado}. A polícia está contratando qualquer um hoje em dia?\"",
+                    f"\"O que você quer que eu faça com isso? Jogue no lixo.\"",
+                    f"\"Isso é tão irrelevante quanto sua investigação.\""
+                ]
+            elif "nervoso" in p_traits or "simples" in p_traits or "instável" in p_traits:
+                respostas = [
+                    f"\"E-eu não sei o que é isso! Eu juro! É só {item_usado}!\"",
+                    f"\"P-por que você está me mostrando isso? Eu fiz algo errado?\"",
+                    f"\"Minha nossa... isso é seu? Eu não quero problemas.\"",
+                    f"\"I-isso não tem nada a ver comigo, eu juro!\""
+                ]
+            elif "educado" in p_traits or "discreto" in p_traits or "calmo" in p_traits:
+                respostas = [
+                    f"\"Receio que {item_usado} não me pertença, Agente.\"",
+                    f"\"Perdão, mas não vejo como isso ajuda na investigação.\"",
+                    f"\"Creio que houve um engano. Nunca vi esse objeto.\"",
+                    f"\"Lamento, mas isso não é relevante para mim.\""
+                ]
+            elif "curiosa" in p_traits or "fofoqueira" in p_traits:
+                respostas = [
+                    f"\"Hmm, {item_usado}? Onde você achou? Era da vítima? Conta tudo!\"",
+                    f"\"Que coisa velha! Isso estava na cena do crime? Posso tirar uma foto?\"",
+                    f"\"Adoro esses detalhes! Me conte mais sobre onde você encontrou isso.\""
+                ]
             else:
-                resp = f"\"{item_usado}? Não faço ideia do que seja. Verifique as digitais.\""
-            
-            return f"({alvo['personalidade'].upper()})\n{resp}", False
+                respostas = [
+                    f"\"{item_usado}? Não faço ideia do que seja.\"",
+                    f"\"Isso não é meu. Pode checar as digitais.\"",
+                    f"\"Vocês estão desesperados se acham que isso é uma pista.\""
+                ]
+
+            frase_final = random.choice(respostas)
+            return f"({alvo['personalidade'].upper()})\n{frase_final}", False
         
     def get_prova_alibi(self, idx): return self.suspeitos[idx]['prova_alibi']
     def pegar_pista_camera(self): return f"Vulto detectado: {self.culpado['visual']}."
@@ -585,14 +876,15 @@ class DonaNeide:
     def __init__(self, suspeitos, culpado, historia):
         self.papo_furado = [
             "Noite passada eu não consegui escutar nada, a Taynara só gritava Bryan!",
-            "a Taynara e o Lucas viajaram para Campos do Jordão semana passada!",
-            "Maykon e a Kenya falam que sente o Frio da Europa, mesmo morando no Rio, Queria saber o que eles estão aprontando...",
-            "O Michael e a Angelica Malha Juntos, ouvi ela falando que ele tem que malhar perna kkkk",
-            "o João tem uma namorada que mora em cachoeira de macacu, ele vive falando dela...",
-            "Fiquei sabendo que o Maykon corta muito bem os cabelos, viu?",
+            "Noite passada ouvi alguem gritando, Inimigo chegando na AO, Mata ele",
+            "Fiquei sabendo que o Maykon corta muito bem os cabelos, viu?",  
+            "comprei um sapato novo semana passada, lindo demais, todo mundo elogiou.",          
             "Sabia que todo mundo gosta da Professora Angelica? Um doce de pessoa.",
-            "Tem um ator novo na Globo que é a cara do Luciano Huck.",
+            "fiquei sabendo que o Michael se formou e eletrotecnia, sera que ele arruma meu aparelho?",
+            "Tem um ator novo na Globo que é a cara do Luciano Huck acho que se chama joão.",
             "Você já comeu o bolo de cenoura da Kenya? O cheiro veio aqui agora.",
+            "Da minha janela não escapa nem pensamento.",
+            "Não é fofoca, é investigação comunitária.",
             "Aceita um cafezinho? Acabei de passar. Tá fresquinho!",
             "Ai, minhas costas estão me matando hoje. Deve ser chuva.",
             "Minha neta instalou esse tal de 'Tinder' no meu celular, acredita?"
@@ -601,158 +893,79 @@ class DonaNeide:
         
         self.fofocas = []
         
-        # 1. Fofoca sobre um Inocente (Para confundir)
-        # Ela vê alguém suspeito, mas que não fez nada
-        inocente = random.choice([s for s in 
-                                  suspeitos if s != culpado])
+        # 1. Fofoca sobre Inocentes
+        inocente = random.choice([s for s in suspeitos if s != culpado])
         self.fofocas.append(f"Eu não fui com a cara de {inocente['nome']}. Ele(a) estava suando frio!")
-        self.fofocas.append(f"Quando fui comprar pão, vi {inocente['nome']} olhando estranho para mim.")
-        self.fofocas.append(f"Outro dia, vi {inocente['nome']} falando sozinho(a) no jardim, sera que é o senhor fulano?")
-        self.fofocas.append(f"{inocente['nome']} sempre Fala de um grupo, acho que é Los Hermanos.")
-        self.fofocas.append(f"Vi {inocente['nome']} mexendo no celular de forma muito suspeita no corredor.")
+        self.fofocas.append(f"Vi {inocente['nome']} saindo apressado(a) da casa da vítima ontem à noite.")
+        self.fofocas.append(f"Ouvi dizer que {inocente['nome']} tinha uma dívida grande com a vítima.")
+        self.fofocas.append(f"Alguém me contou que {inocente['nome']} e a vítima brigaram feio semana passada.")
+        self.fofocas.append(f"Vi {inocente['nome']} olhando nervosamente para o relógio várias vezes ontem.")
+        self.fofocas.append(f"Soube que {inocente['nome']} estava procurando um emprego novo recentemente.")
+        self.fofocas.append(f"Alguém viu {inocente['nome']} perto da cena do crime, mas ele(a) disse que estava em outro lugar.")
+        self.fofocas.append(f"Ouvi dizer que {inocente['nome']} tinha um álibi meio fraco para a noite do crime.")
+        self.fofocas.append(f"Fiquei sabendo que o {inocente['nome']} queria entrar para o grupo dos Los hermanos.")
         
-        # 2. Fofoca sobre o Culpado (PISTAS VAGAS - O SEGREDO ESTÁ AQUI)
+        # 2. Fofoca sobre o Culpado (COM PROTEÇÃO CONTRA O ERRO DE SPLIT)
         visual = culpado['visual'].lower()
-        
-        # Lógica inteligente para pegar só uma parte da roupa
         if ' e ' in visual:
-            # Se for "terno preto e óculos", pega só "terno preto" ou "óculos"
             partes = visual.split(' e ')
             dica_visual = random.choice(partes)
         else:
-            # Se for "dólmã branco", pega só a cor ou o tecido se possível
-            palavras = visual.split()
-            # Tenta pegar a última palavra (geralmente é a cor ou detalhe: "escuros", "branco", "manchado")
-            dica_visual = f"algo {palavras[-1]}"
-            
-        self.fofocas.append(f"Passou alguém correndo... só vi que usava {dica_visual}.")
+            # Pega a última palavra (ex: 'manchado' de 'dólmã branco manchado')
+            dica_visual = visual.split()[-1]
+
+        self.fofocas.append(f"Passou alguém correndo... só vi que usava algo {dica_visual}.")
         self.fofocas.append(f"Não vi o rosto, mas a roupa parecia ter {dica_visual}.")
-        self.fofocas.append(f"Alguém com {dica_visual} passou por mim, parecia com pressa.")
-        self.fofocas.append(f"Uma pessoa vestindo {dica_visual} estava saindo apressado(a) do prédio.")
-        self.fofocas.append(f"Vi um vulto passando rápido com {dica_visual}.")
-        
-        # 3. Fofoca sobre a Cena (Atmosfera)
-        self.fofocas.append(f"Antes do silêncio, ouvi {historia['dica_neide']} caindo no chão.")
-        self.fofocas.append(f"Escutei uma discussão acalorada, parecia que alguém estava muito bravo(a).")
-        self.fofocas.append(f"Alguém gritou algo como 'Eu vou matar você! menino nessa hora eu fiquei assustada.'")
-        self.fofocas.append(f"Ouvi passos apressados saindo do prédio.")
-        self.fofocas.append(f"Parece que a porta dos fundos ficou aberta.")
-        
-        random.shuffle(self.fofocas)
+        self.fofocas.append(f"Alguém falou alto sobre uma roupa {dica_visual} perto da cena do crime.")
+        self.fofocas.append(f"Vi um vulto estranho com algo {dica_visual} fugindo do local.")
+        self.fofocas.append(f"Ouvi um barulho e vi alguém com roupa {dica_visual} saindo apressado.")  
+        self.fofocas.append(f"Alguém disse que viu uma pessoa com roupa {dica_visual} perto da casa da vítima.")
+        self.fofocas.append(f"Uma testemunha mencionou uma roupa {dica_visual} na área na noite do crime.")
+        self.fofocas.append(f"Alguém comentou sobre uma roupa {dica_visual} que parecia fora do lugar.")
+        self.fofocas.append(f"Vi um vulto com algo {dica_visual} perto da cena do crime.")
 
-    def fofocar(self):
-        intro = random.choice(self.papo_furado)
-        if self.fofocas:
-            dica = self.fofocas.pop(0) 
-            return f"{intro}\n\n(Sussurrando) Mas olha... {dica}", True
-        else:
-            return f"{intro}\n\nAh, já falei demais. Daqui a pouco o assassino vem atrás de mim!", False
-    def __init__(self, suspeitos, culpado, historia):
-        # Neide julga as pessoas pela aparência
-        self.papo_furado = [
-            "Noite passada eu não consegui escutar nada, a Taynara só gritava Bryan!",
-            "Fiquei sabendo que o Maykon corta muito bem os cabelos, viu?",
-            "Sabia que todo mundo gosta da Professora Angelica? Um doce de pessoa.",
-            "Tem um ator novo na Globo que é a cara do Luciano Huck.",
-            "Você já comeu o bolo de cenoura da Kenya? O cheiro veio aqui agora.",
-            "Aceita um cafezinho? Acabei de passar. Tá fresquinho!",
-            "Ai, minhas costas estão me matando hoje. Deve ser chuva.",
-            "Minha neta instalou esse tal de 'Tinder' no meu celular, acredita?"
-        ]
-        
-        self.fofocas = []
-        
-        # 1. Fofoca sobre um Inocente
-        inocente = random.choice([s for s in suspeitos if s != culpado])
-        self.fofocas.append(f"Eu não fui com a cara de {inocente['nome']}. Tinha um olhar maligno!")
-        self.fofocas.append(f"Vi {inocente['nome']} andando de um lado para o outro, parecia preocupado(a).")
-        
-        # 2. Fofoca sobre o Culpado (COM PROTEÇÃO CONTRA ERROS)
-        visual = culpado['visual'].lower()
-        
-        # Tenta dividir a roupa em duas partes, se der erro, usa a roupa toda
-        if ' e ' in visual:
-            parte1 = visual.split(' e ')[0]
-            parte2 = visual.split(' e ')[1]
-        else:
-            parte1 = visual
-            parte2 = visual
-
-        self.fofocas.append(f"Vi alguém de {parte1} correndo. Parecia nervoso(a).")
-        self.fofocas.append(f"Alguém com {parte2} estava saindo apressado(a) do prédio.")
-        self.fofocas.append(f"Uma pessoa vestindo {visual} passou por mim, parecia estar com pressa.")
-        
-        # 3. Fofoca sobre a Cena
-        self.fofocas.append(f"Antes do silêncio, ouvi uma gritaria feia. Parecia briga.")
-        self.fofocas.append(f"Alguém saiu batendo a porta de incêndio com muita força.")
-        self.fofocas.append(f"Escutei um som estranho, parecia {historia['dica_neide']} caindo.")
+        # 3. Dica de Item para o PLOT TWIST (Segredo)
+        self.fofocas.append("Achei este papel no chão do corredor: 'Senha Anotada'. Pode ficar.")
+        self.fofocas.append("Achei uma 'Chave Enferrujada' no vaso de plantas. Será que abre algo?")
+        self.fofocas.append("Vi um cofre pequeno na sala da vítima. Tinha uma 'Chave Enferrujada' perto.")
+        self.fofocas.append("A vítima costumava anotar senhas em um caderno. Encontrei uma 'Senha Anotada' aqui.")
+        self.fofocas.append("Achei um pedaço de papel com uma 'Senha Anotada' perto da mesa da vítima.")
+        self.fofocas.append("Vi uma 'Chave Enferrujada' caída perto da estante de livros da vítima.")
+        self.fofocas.append("Achei este papel no chão: 'Senha Anotada'. Pode ficar.")
+        self.fofocas.append("Achei uma 'Chave Enferrujada' no vaso. Será que abre algo?")
+        self.fofocas.append("Menino(a), achei essa 'Lupa' velha na gaveta. Serve pra você?")
+        self.fofocas.append("Toma essa 'Fita Adesiva', vai que você precisa colar algo.")
+        self.fofocas.append("Achei esse 'Cartão de Acesso' caído no tapete.")
+        self.fofocas.append("Alguém esqueceu essa 'Tabela de Símbolos' no elevador.")
+        self.fofocas.append("Peguei essa 'Carta de Advogado' na caixa de correio por engano.")
 
         random.shuffle(self.fofocas)
 
     def fofocar(self):
-        intro = random.choice(self.papo_furado)
         if self.fofocas:
+            intro = random.choice(self.papo_furado)
             dica = self.fofocas.pop(0) 
-            return f"{intro}\n\n(Sussurrando) Mas olha... {dica}", True
+            
+            # LISTA DE ITENS QUE A NEIDE PODE ENTREGAR
+            # O código procura se o nome do item está na frase da fofoca
+            itens_neide = [
+                "Senha Anotada", "Chave Enferrujada", "Lupa", 
+                "Fita Adesiva", "Cartão de Acesso", "Tabela de Símbolos",
+                "Carta de Advogado"
+            ]
+            
+            item_encontrado = None
+            for item in itens_neide:
+                if item in dica: # Se o nome do item estiver na frase
+                    item_encontrado = item
+                    break
+            
+            if item_encontrado:
+                return f"{intro}\n\n(Ela te entrega algo) Toma, achei isso: {item_encontrado}", item_encontrado
+            
+            return f"{intro}\n\n(Sussurrando) Mas olha... {dica}", None
         else:
-            return f"{intro}\n\nAh, já falei demais. Daqui a pouco o assassino vem atrás de mim!", False
-        
-    def __init__(self, suspeitos, culpado, historia):
-        # Neide julga as pessoas pela aparência
-        self.papo_furado = [
-            "Noite passada eu não consegui escutar nada, a Taynara só gritava Bryan!",
-            "Fiquei sabendo que o Maykon corta muito bem os cabelos, viu? Se precisar de um trato, é com ele mesmo.",
-            "Fiquei sabendo que o Michael se formou em eletrotécnica, acredita? Dizem que ele conserta qualquer coisa!",
-            "Sabia que todo mundo gosta da Professora Angelica? Dizem que ela é um doce de pessoa.",
-            "Tem um ator novo na Globo que é a cara do Luciano Huck, você viu? acho que se chama Jhon",
-            "Você ja comeu o bolo de cenoura da Kenya? o cheiro veio aqui na minha janela agora pouco.",
-            "Aceita um cafezinho? Acabei de passar. Tá fresquinho!",
-            "A Rafaela foi la para o Rio de Janeiro semana passada, disse que adorou a praia de Copacabana.",
-            "Ai, minhas costas estão me matando hoje. Deve ser chuva.",
-            "Você viu o capítulo da novela ontem? A Nazaré não vale nada!",
-            "Eu moro aqui há 30 anos, nunca vi uma barulheira dessas.",
-            "Esse prédio já foi melhor. Hoje em dia entra qualquer um.",
-            "Você é solteiro? Tenho uma sobrinha que é uma jóia..."
-        ]
-
-        
-        self.fofocas = []
-        
-        # 1. Fofoca sobre um Inocente (Para confundir)
-        inocente = random.choice([s for s in suspeitos if s != culpado])
-        self.fofocas.append(f"Eu não fui com a cara de {inocente['nome']}. Tinha um olhar maligno!")
-        self.fofocas.append(f"Vi {inocente['nome']} andando de um lado para o outro, parecia preocupado(a).")
-        self.fofocas.append(f"Acho que {inocente['nome']} estava tentando esconder algo... Vi ele(a) mexendo no bolso.")
-        self.fofocas.append(f"{inocente['nome']} sempre foi meio estranho(a), sabia? Nunca gostei dele(a).")
-        self.fofocas.append(f"Vi {inocente['nome']} olhando fixamente para a casa da vítima. Parecia estar tramando algo.")
-        
-        # 2. Fofoca sobre o Culpado (A Verdade misturada)
-        visual = culpado['visual'].lower()
-        self.fofocas.append(f"Vi alguém de {visual.split(' e ')[0]} correndo. Parecia nervoso(a).")
-        self.fofocas.append(f"Alguém com {visual.split(' e ')[1]} estava saindo apressado(a) do prédio.")
-        self.fofocas.append(f"Uma pessoa vestindo {visual} passou por mim, parecia estar com pressa.")
-        self.fofocas.append(f"Alguém com {visual} chamou minha atenção. Parecia estar fugindo de algo.")
-        self.fofocas.append(f"Vi uma pessoa usando {visual} perto da cena do crime. Parecia nervosa.")
-        
-        # 3. Fofoca sobre a Cena (Barulhos)
-        self.fofocas.append(f"Antes do silêncio, ouvi uma gritaria feia. Parecia briga de casal ou sócios.")
-        self.fofocas.append(f"Alguém saiu batendo a porta de incêndio com muita força.")
-        self.fofocas.append(f"Ouvi um barulho de vidro quebrando, seguido de um baque surdo.")
-        self.fofocas.append(f"Teve um som de passos apressados, como se alguém estivesse fugindo.")
-        self.fofocas.append(f"Escutei um som estranho, parecia algo metálico caindo no chão.")
-        self.fofocas.append(f"Antes do silêncio, ouvi um grito abafado, parecia de dor ou surpresa.")
-
-        
-        random.shuffle(self.fofocas)
-
-    def fofocar(self):
-        intro = random.choice(self.papo_furado)
-        
-        if self.fofocas:
-            dica = self.fofocas.pop(0) 
-            return f"{intro}\n\n(Sussurrando) Mas olha... {dica}", True
-        else:
-            return f"{intro}\n\nAh, já falei demais. Daqui a pouco o assassino vem atrás de mim!", False
+            return "Menino, já te contei tudo! Não sei de mais nada. Vai trabalhar!", None
 
 def gerar_detalhes_crime():
     # Corrige o KeyError usando as listas novas
@@ -766,6 +979,28 @@ def gerar_detalhes_crime():
         "arma_real": c['arma'], "evidencia": c['evidencia'],
         "dica_neide": c['dica_neide'], "pistas_relevantes": c['pistas_relevantes']
     }
+
+MANCHETES_DO_DIA = {
+    "inicio": [
+        "URGENTE: Corpo encontrado em circunstâncias misteriosas.",
+        "POLÍCIA NO LOCAL: Moradores relatam movimentação estranha.",
+        "SILÊNCIO NAS RUAS: Bairro isolado para investigação.",
+        "QUEM É A VÍTIMA? Especulações tomam conta das redes sociais."
+    ],
+    "meio": [
+        "SEM RESPOSTAS: Polícia ainda não tem um suspeito principal.",
+        "MEDO CRESCE: Vendas de alarmes disparam na região.",
+        "EXCLUSIVO: Testemunha afirma ter visto 'vulto' fugindo.",
+        "PREFEITO COBRA: 'Precisamos de justiça rápida', diz em coletiva."
+    ],
+    "fim": [ # Essas aparecem quando o tempo está acabando
+        "PÂNICO TOTAL: Assassino pode estar planejando fugir do país!",
+        "ULTIMATO: Chefe de Polícia ameaça demissões se caso não for resolvido.",
+        "CIDADE EM ALERTA: População tranca as portas com medo.",
+        "FRACASSO IMINENTE? Especialistas criticam lentidão da perícia."
+    ]
+}
+ 
 
 # --- SUBSTITA A FUNÇÃO gerar_briefing POR ESTA ---
 def gerar_briefing_pro(h):
@@ -792,70 +1027,16 @@ def gerar_briefing_pro(h):
         f"ORDEM DE MISSÃO: Isole o perímetro. Interrogue os suspeitos listados.\n"
         f"Colete evidências físicas e digitais. Autorização de força letal: NEGADA."
         f" Estou enviando para vocês a lista dos suspeitos e detalhes adicionais no arquivo anexo.\n"
-        f"Agentes, visite a Dona Neide, Ela parece que viu bastante coisa.\n"
+        f"Agentes, visitem a Dona Neide. Ela parece ter visto bastante coisa.\n"
         
     )
     return relatorio
 
 def gerar_dossie_suspeitos(lista_suspeitos):
-    # Cabeçalho Tático
-    relatorio = (
-        f"📂 *DOSSIÊ TÁTICO: SUSPEITOS (NÍVEL 1)*\n"
-        f"CONFIDENCIAL // USO RESTRITO\n"
-        f"════════════════════════════════════\n"
-    )
-    
-    for i, s in enumerate(lista_suspeitos):
-        icone = "👤"
-        if "nervoso" in s['personalidade']: icone = "😰"
-        elif "arrogante" in s['personalidade']: icone = "😒"
-        elif "calmo" in s['personalidade']: icone = "😐"
-        elif "instável" in s['personalidade']: icone = "😭"
-        
-        # --- AQUI ESTAVA O ERRO DE SINTAXE (CORRIGIDO) ---
-        # Note que agora é f"*ID... e não f"*{ID...
-        relatorio += f"*ID #{i+1:02d} | CODINOME: {s['nome'].upper()}* {icone}\n"
-        
-        # Mudei para "Marcadores" em vez de Visual direto, fica mais chique
-        relatorio += f"├─ Perfil: {s['personalidade']}\n"
-        relatorio += f"├─ Marcadores Visuais: {s['visual']}\n" 
-        relatorio += f"└─ Vínculo: {s['relacao_com_vitima']}\n\n"
-    
-    relatorio += "------------------------------------\n"
-    relatorio += "⚠️ *INSTRUÇÃO:* Cruzar dados visuais com relatos das testemunhas."
-    return relatorio
-
+       
     # Cabeçalho do Anexo
     relatorio = (
         f"📂 *LISTA DE PESSOAS SUSPEITAS (PDI)*\n"
-        f"PRIORIDADE: ALTA // CONFIDENCIAL\n"
-        f"════════════════════════════════════\n"
-    )
-    
-    for i, s in enumerate(lista_suspeitos):
-        # Ícones para dar visual no WhatsApp
-        icone = "👤"
-        if "nervoso" in s['personalidade']: icone = "😰"
-        elif "arrogante" in s['personalidade']: icone = "😒"
-        elif "calmo" in s['personalidade']: icone = "😐"
-        elif "instável" in s['personalidade']: icone = "😭"
-        
-        # --- CORREÇÃO AQUI ---
-        # Removi as chaves { } que estavam em volta da palavra ID
-        # Antes estava: f"*{ID ...
-        # Agora está:   f"*ID ...
-        relatorio += f"*ID #{i+1:02d} | {s['nome'].upper()}* {icone}\n"
-        
-        relatorio += f"├─ Perfil: {s['personalidade']}\n\n"
-        
-    
-    relatorio += "------------------------------------\n"
-    relatorio += "⚠️ *CUIDADO:* O assassino está nesta lista."
-    return relatorio
-
-    # Cabeçalho do Anexo
-    relatorio = (
-        f"📂 *LISTA DE PESSOAS SUSPEIAS (PDI)*\n"
         f"PRIORIDADE: ALTA // CONFIDENCIAL\n"
         f"════════════════════════════════════\n"
     )
@@ -896,7 +1077,7 @@ def logo_profissional():
     # Barra de Status Fake
     memoria = random.randint(12, 64)
     print(f"  ┌────────────────────────────────────────────────────────┐")
-    print(f"  │ [SERVER]: {Cor.VERDE_NEON}ONLINE{Cor.AZUL_CYBER}   [MEM]: {memoria}GB   [LATENCY]: {random.randint(10,50)}ms   [SEC]: {Cor.AMARELO}HIGH{Cor.AZUL_CYBER} │")
+    print(f"  │ [SERVER]: {Cor.VERDE_NEON}ONLINE{Cor.AZUL_CYBER}   [MEM]: {memoria}GB   [LATENCY]: {random.randint(10,50)}ms       │")
     print(f"  └────────────────────────────────────────────────────────┘{Cor.RESET}\n")
 
 def painel(titulo, conteudo, cor=Cor.AZUL_CYBER):
@@ -1002,7 +1183,7 @@ def menu():
         
         # O BOTÃO GRANDE DE INICIAR
         print(f"\n  {Cor.VERDE_NEON}╔{'═'*20}╗")
-        print(f"  ║ [ENTER] INICIAR  ║")
+        print(f"  ║ [ENTER] INICIAR    ║")
         print(f"  ╚{'═'*20}╝{Cor.RESET}")
         
         op = input(f"\n{Cor.AZUL_CYBER}  TERMINAL >> {Cor.RESET}").upper()
@@ -1011,13 +1192,14 @@ def menu():
         
         if op == '1': # ADICIONAR
             print(f"\n  {Cor.AMARELO}>> NOVO REGISTRO:{Cor.RESET}")
-            n = input("  Nome de Codinome: ")
-            t = input("  Frequência (Zap): ")
+            n = input("  Nome do Agente: ")
+            t = input("  Frequência whatsapp: ")
             nums = "".join(filter(str.isdigit, t))
             if not nums.startswith("55"): nums = "55" + nums
             agentes.append({"nome": n, "telefone": "+" + nums})
             with open(ARQUIVO_DADOS, 'w') as f: json.dump(agentes, f)
             print(f"  {Cor.VERDE}>> REGISTRO SALVO.{Cor.RESET}"); time.sleep(1)
+            
 
         elif op == '2': # REMOVER (NOVO!)
             if not agentes:
@@ -1037,6 +1219,7 @@ def menu():
                 time.sleep(1.5)
             except ValueError:
                 print(f"  {Cor.VERMELHO}>> ENTRADA INVÁLIDA.{Cor.RESET}"); time.sleep(1)
+                
 
         elif op == '3': # LIMPAR TUDO
             confirm = input(f"  {Cor.VERMELHO}>> TEM CERTEZA? (S/N): {Cor.RESET}").upper()
@@ -1044,6 +1227,7 @@ def menu():
                 agentes = []
                 with open(ARQUIVO_DADOS, 'w') as f: json.dump([], f)
                 print(f"  {Cor.VERMELHO}>> DATABASE FORMATADA.{Cor.RESET}"); time.sleep(1)
+                
 
         elif op == '4': # SAIR
             print(f"  {Cor.AZUL_CYBER}>> ENCERRANDO SESSÃO...{Cor.RESET}")
@@ -1054,7 +1238,8 @@ def menu():
                 jogar(agentes)
             else: 
                 print(f"  {Cor.VERMELHO}>> ERRO: ALOCAR EQUIPE PRIMEIRO.{Cor.RESET}"); time.sleep(1)
-
+               
+# --- FUNÇÃO DE FICHA DE SUSPEITO COM RELATÓRIO LIMPO PARA whatZAP ---
 def mostrar_ficha_suspeito(suspeito, index):
     limpar_tela()
     
@@ -1150,15 +1335,45 @@ def ambiente_terror_background():
             if efeito:
                 efeito.set_volume(0.3) # 30% do volume
 
+def preparar_suspeitos_para_jogo(lista_bruta):
+    suspeitos_prontos = []
+    
+    for modelo in lista_bruta:
+        # Cria uma cópia para não estragar o banco de dados original
+        s = modelo.copy()
+        
+        # 1. SORTEIA O VISUAL
+        # Se tiver a lista nova, sorteia. Se for o antigo (texto), mantém.
+        if "visuais_possiveis" in s:
+            s['visual'] = random.choice(s['visuais_possiveis'])
+        
+        # 2. SORTEIA O ÁLIBI + PROVA (O par correto)
+        if "setup_alibi" in s:
+            escolha = random.choice(s['setup_alibi'])
+            s['alibi'] = escolha['onde']
+            s['prova_alibi'] = escolha['prova']
+            
+        suspeitos_prontos.append(s)
+        
+    return suspeitos_prontos
+
 def jogar(agentes):
     barra_carregamento("BAIXANDO DADOS DA INTERPOL")
     
     # 1. GERA OS DADOS
     detalhes = gerar_detalhes_crime()
     
-    # Sorteio (Mantenha seu código de sorteio aqui...)
-    vitima = random.choice(ARQUETIPOS_COMPLETOS)
-    pool = [p for p in ARQUETIPOS_COMPLETOS if p['nome'] != vitima['nome']]
+   # 1. CONVERTE OS DADOS BRUTOS EM SUSPEITOS ÚNICOS PARA ESSA PARTIDA
+    # Isso transforma as listas de opções em 1 opção escolhida
+    todos_personagens = preparar_suspeitos_para_jogo(ARQUETIPOS_COMPLETOS)
+
+    # 2. AGORA SORTEIA USANDO A LISTA JÁ PROCESSADA
+    vitima = random.choice(todos_personagens)
+    
+    # Remove a vítima da lista de possíveis suspeitos
+    pool = [p for p in todos_personagens if p['nome'] != vitima['nome']]
+    
+    # Sorteia os 5 suspeitos
     suspeitos = random.sample(pool, 5)
     culpado = random.choice(suspeitos)
     random.shuffle(suspeitos)
@@ -1174,6 +1389,11 @@ def jogar(agentes):
     # 3. MOSTRA NA TELA APENAS A MISSÃO GERAL
     limpar_tela()
     media.tocar_ambiente("ambience.mp3")
+
+# --- ATIVANDO A TELA DE VIGILÂNCIA ---
+    global executando_cctv
+    executando_cctv = True        
+    # -------------------------------------
     # Liga os sons aleatórios
     threading.Thread(target=ambiente_terror_background, daemon=True).start()
     
@@ -1210,17 +1430,40 @@ def jogar(agentes):
         resp = input(f"{Cor.VERDE_NEON}>> DIGITE [S] E ENTER PARA INICIAR A MISSÃO...{Cor.RESET}").upper()
         if resp == 'S': break
     
+    # --- MOVA PARA CÁ (FORA DO LOOP, ALINHADO À ESQUERDA) ---
+    tentativas_restantes = 2
+    rodadas_jogadas = 0
+    
     
     while True:
         limpar_tela(); logo_profissional()
-        print(f"LOCAL ATUAL: {detalhes['local']} | VÍTIMA: {vitima['nome']}\n | HORA DO CRIME: {detalhes['hora']}\n")        
-        print(f"\n{Cor.BRANCO}MENU DE AÇÕES:{Cor.RESET}")
-        print("[1] 👥  Gerenciar Suspeitos (Interrogar/Perfil)")
-        print("[2] 📹  Hackear Câmeras")
-        print("[3] 🔬  Forense (Drone)")
+        
+        # --- LÓGICA DA MANCHETE (Baseada em Rodadas) ---
+        if rodadas_jogadas < 20:
+            fase = "inicio"; cor_news = Cor.BRANCO
+        elif rodadas_jogadas < 40:
+            fase = "meio"; cor_news = Cor.AMARELO
+        else:
+            fase = "fim"; cor_news = Cor.VERMELHO_SANGUE
+            
+        noticia = random.choice(MANCHETES_DB[fase])
+        
+        # CABEÇALHO DO JORNAL
+        print(f"{Cor.CINZA}╔{'═'*79}╗{Cor.RESET}")
+        print(f"{Cor.CINZA}║ {Cor.VERMELHO_SANGUE}MANCHETE DO DIA: {cor_news}{noticia.center(61)} {Cor.CINZA}║{Cor.RESET}")
+        print(f"{Cor.CINZA}╚{'═'*79}╝{Cor.RESET}\n")
+
+        print(f"LOCAL: {detalhes['local']} | VÍTIMA: {vitima['nome']} | HORA DO CRIME: {detalhes['hora']}\n")
+        print(f"AÇÕES REALIZADAS: {rodadas_jogadas} (Quanto mais demora, pior a imprensa fica)\n")   
+        
+        print(f"{Cor.BRANCO}MENU DE AÇÕES TÁTICAS:{Cor.RESET}")
+        print("[1] 👥  Falar com Suspeitos")
+        print("[2] 📹  Usar a Câmeras")
+        print("[3] 🔬  Usar o Drone")
         print("[4] ☕  Visitar Dona Neide")
-        print(f"{Cor.VERMELHO}[5] 🚨  ACUSAR (FINAL){Cor.RESET}")
-        print("[6] ❌  Sair")
+        print(f"{Cor.AZUL_CYBER}[5] ⚗️  LABORATÓRIO (COMBINAR ITENS){Cor.RESET}") # <--- NOVO
+        print(f"{Cor.VERMELHO}[6] 🚨  ACUSAR (FINAL){Cor.RESET}")
+        print("[7] ❌  Sair")
         
         op = input(f"\n{Cor.VERDE_NEON}>> {Cor.RESET}")
         
@@ -1289,7 +1532,6 @@ def jogar(agentes):
                             input(">> Enter para voltar")
 
                         elif op_int == 'E':
-                            # Lógica do Inventário
                             if not inv.inventario:
                                 print(f"\n{Cor.VERMELHO}>> VOCÊ NÃO TEM ITENS! USE O DRONE (OPÇÃO 3).{Cor.RESET}")
                                 time.sleep(2)
@@ -1306,38 +1548,31 @@ def jogar(agentes):
                                         # Chama a função de reação
                                         reacao, ficou_nervoso = inv.confrontar_com_evidencia(idx, item_selecionado, detalhes)
                                         
+                                        # 1. MOSTRA A REAÇÃO
                                         painel("REAÇÃO DO SUSPEITO", reacao, Cor.VERMELHO_SANGUE)
+                                        
+                                        # 2. PREPARA O ÁUDIO (ISSO É O IMPORTANTE)
+                                        som_cardiaco = None
+                                        
+                                        # Toca a voz
                                         audio.falar(reacao.replace('"', ''))
                                         
-                                        # Cria uma variável para controlar o som
-                                        som_tensao = None 
-                                        
+                                        # Se ficou nervoso, liga o coração e GUARDA na variável
                                         if ficou_nervoso:
-                                            # Guardamos o som na variável
-                                            som_tensao = media.tocar_efeito("coracao.mp3", True)
-                                        
-                                        input(">> Pressione Enter para continuar...")
-                                        
-                                        # CORREÇÃO: Paramos só o coração, não a música
-                                        # 1. Toca a reação (Voz)
-                                        audio.falar(reacao.replace('"', ''))
-                                        
-                                        # 2. CONTROLE DO CORAÇÃO (AQUI ESTA A CORREÇÃO)
-                                        som_cardiaco = None # Cria a variável vazia antes
-                                        
-                                        if ficou_nervoso:
-                                            # Guarda o som na variável para poder parar depois
                                             som_cardiaco = media.tocar_efeito("coracao.mp3", loop=True)
                                         
+                                        # 3. TRAVA O JOGO AQUI
                                         input(f"\n{Cor.AMARELO}>> Pressione Enter para acalmar o suspeito...{Cor.RESET}")
                                         
-                                        # 3. PARAR O CORAÇÃO E VOLTAR A MÚSICA
+                                        # 4. MATAR O SOM DO CORAÇÃO (BRUTALMENTE)
                                         if som_cardiaco:
-                                            som_cardiaco.stop() # Para só o coração
+                                            som_cardiaco.stop()
                                         
-                                        # Garante que a música de fundo continua tocando
-                                        # (Se ela tiver parado, isso religa)
-                                        media.tocar_ambiente("login.mp3")
+                                        # Garante que nenhum efeito sobrou
+                                        media.parar_tudo() 
+                                        # Volta a música de fundo
+                                        media.tocar_ambiente("login.mp3") 
+                                        
                                     else:
                                         print("Item inválido.")
                                 except ValueError:
@@ -1356,10 +1591,15 @@ def jogar(agentes):
                     # --- AQUI É O LUGAR CERTO DO ÁLIBI ---
                 elif acao == '2':
                     # --- RELATÓRIO + VÍDEO ---
-                    nome_video = alvo.get('video', 'padrao.mp4')
+                   # --- RELATÓRIO + VÍDEO (CORRIGIDO) ---
+                    nome_video_arquivo = alvo.get('video', 'padrao.mp4')
+                    # Junta o caminho da pasta + o nome do arquivo
+                    caminho_completo_video = os.path.join(PASTA_VIDEO, nome_video_arquivo)
+                    
                     print(f"{Cor.AZUL_CYBER}>> CARREGANDO PERFIL VISUAL...{Cor.RESET}")
                     
-                    media.tocar_video_hacker(nome_video, "suspense.mp3")
+                    # Passa o caminho completo agora
+                    media.tocar_video_hacker(caminho_completo_video, "suspense.mp3")
                     
                     # Agora essa variável recebe o texto (graças à correção 1)
                     texto_relatorio = mostrar_ficha_suspeito(alvo, idx)
@@ -1444,41 +1684,118 @@ def jogar(agentes):
             som_drone = media.tocar_efeito("drone.mp3", loop=False) 
             barra_carregamento("MAPEANDO PERÍMETRO")
             
-            # Sorteia se acha pista boa ou lixo
-            if random.random() < 0.6: # 60% de chance de pista boa
-                item = random.choice(detalhes['pistas_relevantes'])
-                tipo = "EVIDÊNCIA CRÍTICA"
-                cor = Cor.AMARELO
-            else:
-                item = random.choice(PISTAS_IRRELEVANTES)
-                tipo = "SUCATA/LIXO"
-                cor = Cor.CINZA
+            # --- LÓGICA SIMPLIFICADA ---
+            # O Drone procura nas pistas do crime E na lista gigante de ingredientes
+            # Ele filtra (if i not in inv.inventario) para não pegar o que você já tem
             
-            if som_drone: som_drone.stop()
+            pool_de_busca = detalhes['pistas_relevantes'] + PISTAS_IRRELEVANTES
             
-            # --- AQUI GUARDA NO INVENTÁRIO ---
-            novo = inv.adicionar_item(item)
-            msg_sistema = "ITEM ADICIONADO AO INVENTÁRIO" if novo else "ITEM JÁ POSSUÍDO"
-            
-            painel(f"SCANNER: {tipo}", [f"Objeto: {item}", f"STATUS: {msg_sistema}"], cor)
-            audio.falar(f"Encontrei {item}. Guardando no inventário.")
-            input("[ENTER]")
+            itens_possiveis = [i for i in pool_de_busca if i not in inv.inventario]
 
+            if not itens_possiveis:
+                painel("SCANNER: VAZIO", ["Não há mais evidências nesta área."], Cor.CINZA)
+                audio.falar("Área limpa.")
+            else:
+                item = random.choice(itens_possiveis)
+                if som_drone: som_drone.stop()
+                
+                inv.adicionar_item(item)
+                painel(f"SCANNER: EVIDÊNCIA", [f"Objeto: {item}", "STATUS: COLETADO"], Cor.VERDE_NEON)
+                audio.falar(f"Encontrei {item}. Guardando.")
+            
+            input("[ENTER]")
+            rodadas_jogadas += 1
+
+        # --- OPÇÃO 4: DONA NEIDE (ATUALIZADA) ---
         elif op == '4':
-            if os.path.exists("campainha.mp3"): media.tocar_efeito("campainha.mp3")
+            media.tocar_efeito("campainha.mp3")
             digitar(">> Dona Neide atende a porta...", 0.03)
-            fofoca, _ = neide.fofocar()
+            
+            # Chama a Neide nova (que não repete e dá itens)
+            fofoca, item_extra = neide.fofocar()
+            
             painel("DONA NEIDE", fofoca, Cor.ROXO)
             audio.falar(fofoca)
+            
+            if item_extra:
+                inv.adicionar_item(item_extra)
+                print(f"\n{Cor.VERDE}>> {item_extra} ADICIONADO AO INVENTÁRIO!{Cor.RESET}")
+            
             input("[ENTER]")
+            rodadas_jogadas += 1
 
+       # --- OPÇÃO 5: LABORATÓRIO E COMUNICAÇÃO (CORRIGIDO) ---
         elif op == '5':
-            # --- ACUSAÇÃO FINAL (Versão Corrigida) ---
+            print(f"\n{Cor.AZUL_CYBER}>> ACESSANDO BANCADA DE LABORATÓRIO...{Cor.RESET}")
+            
+            # SUB-MENU DO LABORATÓRIO
+            print(f"\n{Cor.BRANCO}O QUE DESEJA FAZER?{Cor.RESET}")
+            print(f"[1] ⚗️  TENTAR COMBINAÇÃO (CRAFTING)")
+            print(f"[2] 📲  ENVIAR INVENTÁRIO PARA EQUIPE")
+            print(f"[3] 🔙  VOLTAR")
+            
+            sub_op = input(f"\n{Cor.VERDE_NEON}>> ESCOLHA: {Cor.RESET}")
+
+            # --- A. COMBINAR ITENS ---
+            if sub_op == '1':
+                barra_carregamento("CRUZANDO DADOS")
+                
+                # Chama sua função de combinar (aquela manual que fizemos)
+                msg, sucesso = inv.combinar_itens()
+                
+                cor_msg = Cor.VERDE_NEON if sucesso else Cor.AMARELO
+                painel("RELATÓRIO DE ANÁLISE", msg, cor_msg)
+                
+                if sucesso:
+                    media.tocar_efeito("acertopoints.mp3")
+                    audio.falar("Sucesso. Nova evidência gerada.")
+                else:
+                    media.tocar_efeito("falha1.mp3")
+                    audio.falar("Combinação falhou.")
+                
+                input("[ENTER]")
+                rodadas_jogadas += 1 # Gasta tempo
+
+            # --- B. ENVIAR ZAP ---
+            elif sub_op == '2':
+                if not TEM_ZAP or MODO_OFFLINE:
+                    print(f"\n{Cor.VERMELHO}>> ERRO: SISTEMA DE COMUNICAÇÃO OFFLINE.{Cor.RESET}")
+                    time.sleep(2)
+                else:
+                    print(f"\n{Cor.AMARELO}>> SELECIONE O DESTINATÁRIO:{Cor.RESET}")
+                    print("[0] 📢 ENVIAR PARA TODOS")
+                    for i, ag in enumerate(agentes):
+                        print(f"[{i+1}] 👤 {ag['nome']}")
+                    
+                    try:
+                        dest = int(input(f"\n{Cor.VERDE}>> NÚMERO: {Cor.RESET}"))
+                        
+                        txt_zap = "📦 *RELATÓRIO DE EVIDÊNCIAS COLETADAS:*\n\n"
+                        if not inv.inventario:
+                            txt_zap += "(Mochila Vazia)"
+                        else:
+                            for item in inv.inventario:
+                                txt_zap += f"✅ {item}\n"
+                        txt_zap += "\n_Solicito análise imediata._"
+
+                        if dest == 0:
+                            for ag in agentes: enviar_zap_turbo(ag, txt_zap)
+                        elif 0 < dest <= len(agentes):
+                            enviar_zap_turbo(agentes[dest-1], txt_zap)
+                            
+                    except ValueError: pass
+                    rodadas_jogadas += 1 # Gasta tempo
+            
+            # Se for 3, ele só sai e volta pro menu principal
+
+        elif op == '6':
+            # --- ACUSAÇÃO FINAL (SISTEMA DE VIDAS + REVELAÇÃO) ---
             digitar(f"{Cor.VERMELHO}>> INICIANDO PROTOCOLO FINAL...{Cor.RESET}")
             media.parar_ambiente()
             
-            print(f"{Cor.AMARELO}>> EXECUTANDO VÍDEO...{Cor.RESET}")
-            media.tocar_video_hacker("hack.mp4") 
+            print(f"{Cor.AMARELO}>> EXECUTANDO VÍDEO...{Cor.RESET}")           
+            caminho_hack = os.path.join(PASTA_VIDEO, "hack.mp4")
+            media.tocar_video_hacker(caminho_hack)
             
             print(f"\n{Cor.BRANCO}========================================{Cor.RESET}")
             input(f"{Cor.VERMELHO_SANGUE}>> PRESSIONE [ENTER] PARA ACUSAR...{Cor.RESET}")
@@ -1490,8 +1807,8 @@ def jogar(agentes):
             
             try:
                 # FASE 1: ASSASSINO
-                lista = [f"[{i+1}] {s['nome']} ({s['visual']})" for i,s in enumerate(suspeitos)]
-                painel("PASSO 1/2: QUEM É O ASSASSINO?", lista, Cor.VERMELHO)
+                lista = [f"[{i+1}] {s['nome']}" for i,s in enumerate(suspeitos)]
+                painel(f"PASSO 1/2: QUEM É O ASSASSINO? (CHANCES: {tentativas_restantes})", lista, Cor.VERMELHO)
                 
                 # VOZ EM THREAD
                 def narrar_acusacao(): audio.falar("Identifique o assassino e a arma.")
@@ -1501,7 +1818,10 @@ def jogar(agentes):
                 
                 # FASE 2: ARMA
                 todas_armas = [c['arma'] for c in CRIMES_DB]
-                random.shuffle(todas_armas)
+                # DICA: Não vamos embaralhar as armas aqui para facilitar a leitura se o jogador decorar a ordem
+                # Mas se quiser embaralhar, descomente a linha abaixo:
+                # random.shuffle(todas_armas)
+                
                 limpar_tela(); logo_profissional()
                 painel("PASSO 2/2: QUAL FOI A ARMA?", [f"[{i+1}] {a}" for i,a in enumerate(todas_armas)], Cor.VERMELHO)
                 
@@ -1511,26 +1831,67 @@ def jogar(agentes):
                 media.parar_ambiente() 
                 barra_carregamento("PROCESSANDO SENTENÇA")
 
+                # VERIFICAÇÃO
                 acertos = 0
                 if suspeitos[esc_susp] == culpado: acertos += 1
                 if arma_escolhida == detalhes['arma_real']: acertos += 1
                 
+                # --- CENÁRIO 1: VITÓRIA ---
                 if acertos == 2:
                     media.tocar_efeito("win.mp3")
                     painel("SUCESSO", "CULPADO PRESO E ARMA RECUPERADA.", Cor.VERDE_NEON)
-                    audio.falar("Vitória. Caso encerrado.")
+                    audio.falar("Excelente trabalho, Agente. Caso encerrado.")
                     break 
+                
+              # --- CENÁRIO 2: ERRO (MAS TEM SEGUNDA CHANCE) ---
                 else:
-                    media.tocar_efeito("fail.mp3")
-                    painel("FALHA", "ERRO NA DEDUÇÃO. O CRIMINOSO ESCAPOU.", Cor.VERMELHO)
-                    audio.falar("Fracasso total.")
-                    break
+                    tentativas_restantes -= 1 
+                    
+                    # 1. MATA A SIRENE NA HORA (IMPORTANTE!)
+                    media.parar_tudo() 
+                    
+                    if tentativas_restantes > 0:
+                        media.tocar_efeito("fail.mp3") 
+                        msg = [
+                            f"Sua teoria tem furos.",
+                            f"O promotor rejeitou a acusação.",
+                            f"VOCÊ TEM MAIS {tentativas_restantes} CHANCE."
+                        ]
+                        painel("DEDUÇÃO INCORRETA", msg, Cor.AMARELO)
+                        audio.falar("Você errou. O promotor te deu mais uma chance.")
+                        
+                        input(">> Pressione Enter para voltar e investigar mais...")
+                        
+                        # 2. RELIGA A MÚSICA DE FUNDO
+                        media.tocar_ambiente("login.mp3") 
+                    
+                    # --- CENÁRIO 3: GAME OVER ---
+                    else:
+                        media.tocar_efeito("fail.mp3")
+                        # ... (o resto do código de Game Over continua igual)
+                        
+                        # AQUI ESTÁ A REVELAÇÃO
+                        revelacao = [
+                            f"O CULPADO ERA: {culpado['nome'].upper()}",
+                            f"A ARMA ERA: {detalhes['arma_real'].upper()}",
+                            f"MOTIVAÇÃO: {culpado['luto']}"
+                        ]
+                        
+                        painel("CASO ARQUIVADO (FRACASSO)", revelacao, Cor.VERMELHO_SANGUE)
+                        
+                        txt_final = f"Você falhou. O culpado era {culpado['nome']} e usou {detalhes['arma_real']}."
+                        audio.falar(txt_final)
+                        
+                        print(f"\n{Cor.CINZA}>> O assassino fugiu do país.{Cor.RESET}")
+                        break
 
             except Exception as e:
-                media.parar_ambiente(); media.tocar_ambiente("login.mp3")
+                media.parar_ambiente(); media.tocar_ambiente("ambience.mp3")
                 print(f"{Cor.VERMELHO}>> ERRO DE ENTRADA: {e}{Cor.RESET}"); time.sleep(2)
+            # --- ACUSAÇÃO FINAL (Versão Corrigida) ---
+           
 
-        elif op == '6': break
+        elif op == '7': break
 
 if __name__ == "__main__":
     menu()
