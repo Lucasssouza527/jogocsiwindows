@@ -348,11 +348,18 @@ class MediaManager:
             except: pass
 
     def tocar_video_hacker(self, video_file, audio_file=None):
-        # Verifica se o arquivo existe ANTES de tentar abrir
+        # --- PAUSA A CÂMERA DE VIGILÂNCIA PARA NÃO TRAVAR ---
+        global cctv_em_pausa
+        cctv_em_pausa = True
+        time.sleep(0.5) # Dá meio segundo para a janela fechar
+        # ----------------------------------------------------
+
+        # Verifica se o arquivo existe
         if not os.path.exists(video_file):
-            print(f"{Cor.AMARELO}>> ARQUIVO DE VÍDEO NÃO ENCONTRADO: {video_file} (Pulando...){Cor.RESET}")
+            print(f"{Cor.AMARELO}>> ARQUIVO DE VÍDEO NÃO ENCONTRADO...{Cor.RESET}")
+            cctv_em_pausa = False # <--- IMPORTANTE: RELIGA SE DER ERRO
             time.sleep(1)
-            return # Sai da função sem dar erro
+            return
 
         # Toca audio de fundo
         if audio_file and TEM_PYGAME and os.path.exists(audio_file):
@@ -364,36 +371,32 @@ class MediaManager:
         try:
             import cv2
             cap = cv2.VideoCapture(video_file)
-            window_name = "PERFILAMENTO (ENTER para PULAR)" # Mudei o nome para avisar o usuário
+            window_name = "PERFILAMENTO (ENTER para PULAR)"
             
-            # Configura para permitir redimensionar
             cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
             cv2.setWindowProperty(window_name, cv2.WND_PROP_TOPMOST, 1)
-            
-            # --- ADICIONE ISSO PARA O TAMANHO MÉDIO ---
             cv2.resizeWindow(window_name, 960, 540) 
-            # ------------------------------------------
 
             while cap.isOpened():
                 ret, frame = cap.read()
                 if not ret: break 
                 cv2.imshow(window_name, frame)
                 
-                # --- ESTA LINHA É A QUE FECHA COM ENTER ---
-                # 13 = Enter, 32 = Espaço, 27 = Esc, 'q' = Quit
                 if cv2.waitKey(25) in [13, 32, 27, ord('q')]: 
                     print(f"\n{Cor.AMARELO}>> VÍDEO INTERROMPIDO PELO USUÁRIO.{Cor.RESET}")
                     break
-                # ------------------------------------------
             
             cap.release()
-            cv2.destroyAllWindows() # Garante que a janela some
+            cv2.destroyAllWindows()
         except:
-            # Se der erro no OpenCV, tenta abrir normal ou ignora
             try: os.startfile(video_file)
             except: pass
         
         if som_fundo: som_fundo.stop()
+
+        # --- RELIGA A CÂMERA DE VIGILÂNCIA ---
+        cctv_em_pausa = False
+        # -------------------------------------
 
     def efeito_matrix(self):
         # ... (seu código matrix continua igual)
@@ -440,56 +443,82 @@ class AudioSystem:
 audio = AudioSystem()
 
 # --- SISTEMA DE VIGILÂNCIA (OMNI-VIEW) ---
-executando_cctv = False # Controle global para parar o vídeo quando sair
+executando_cctv = False
+cctv_em_pausa = False
 
 def sistema_omni_view():
-    global executando_cctv
+    global executando_cctv, cctv_em_pausa # <--- ADICIONE cctv_em_pausa AQUI
     import cv2
+    import numpy as np 
     
-    # DICA: Coloque nomes de vídeos curtos que você tenha na pasta assets/video
-    # Pode repetir o hacker.mp4 se não tiver outros por enquanto
-    videos_ambiente = ["hacker.mp4", "chiado.mp4", "camera1.mp4"] 
+    janela_nome = "SISTEMA DE VIGILANCIA (AO VIVO)"
     
-    janela_nome = "CENTRAL DE VIGILANCIA (AO VIVO)"
-    
-    # Configura a janela
-    cv2.namedWindow(janela_nome, cv2.WINDOW_NORMAL)
-    cv2.resizeWindow(janela_nome, 640, 360) 
-    # Tenta mover para o canto direito da tela (ajuste o 900 se precisar)
-    cv2.moveWindow(janela_nome, 900, 50) 
-
-    idx_video = 0
+    # Configurações iniciais
+    video_padrao = "chiado.mp4"
+    videos_evento = ["suspeito1.mp4", "suspeito2.mp4", "matrix.mp4","suspeito3.mp4","suspeito4.mp4"] 
+    proximo_evento = time.time() + random.randint(30, 60)
     
     while executando_cctv:
-        # Pega o vídeo atual da lista (Cíclico)
-        video_atual = videos_ambiente[idx_video % len(videos_ambiente)]
-        caminho = os.path.join(PASTA_VIDEO, video_atual)
+        # --- PROTOCOLO DE PAUSA (EVITA O TRAVAMENTO) ---
+        if cctv_em_pausa:
+            # Se estiver pausado, fecha a janela para liberar recurso pro outro vídeo
+            try: cv2.destroyWindow(janela_nome)
+            except: pass
+            time.sleep(1) # Dorme 1 segundo e checa de novo
+            continue
+        # -----------------------------------------------
+
+        # Recria a janela se ela tiver sido fechada
+        cv2.namedWindow(janela_nome, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow(janela_nome, 600, 400)
+        cv2.moveWindow(janela_nome, 950, 50)
+        try: cv2.setWindowProperty(janela_nome, cv2.WND_PROP_TOPMOST, 1)
+        except: pass
+
+        # A. DECIDE QUAL VÍDEO TOCAR
+        agora = time.time()
         
-        # Se o vídeo não existir, usa o hacker.mp4 como padrão para não travar
-        if not os.path.exists(caminho):
-            caminho = os.path.join(PASTA_VIDEO, "hacker.mp4")
-            
+        if agora >= proximo_evento:
+            nome_video = random.choice(videos_evento)
+            proximo_evento = time.time() + random.randint(60, 120)
+            modo_susto = True
+        else:
+            nome_video = video_padrao
+            modo_susto = False
+
+        caminho = os.path.join(PASTA_VIDEO, nome_video)
         cap = cv2.VideoCapture(caminho)
         
+        if not cap.isOpened():
+             time.sleep(1)
+             continue
+
+        # B. TOCA O VÍDEO SELECIONADO
         while cap.isOpened() and executando_cctv:
+            # VERIFICA PAUSA DENTRO DO LOOP TAMBÉM
+            if cctv_em_pausa: break 
+
             ret, frame = cap.read()
-            if not ret:
-                break # Fim do vídeo, loop reinicia ou vai pro próximo
+            if not ret: break 
             
-            # Escreve "AO VIVO" no vídeo para parecer câmera de segurança
+            # Interrompe chiado para susto
+            if not modo_susto and time.time() >= proximo_evento: break 
+
             cv2.putText(frame, "REC AO VIVO", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            cv2.putText(frame, f"CAM-{random.randint(1,9)}", (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
+            
+            if modo_susto:
+                cv2.putText(frame, "MOVIMENTO DETECTADO", (20, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            else:
+                cv2.putText(frame, "SEM SINAL...", (20, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
             
             cv2.imshow(janela_nome, frame)
             
-            # Espera 30ms (equivale a ~30 FPS)
             if cv2.waitKey(30) & 0xFF == ord('q'):
                 executando_cctv = False
                 break
         
         cap.release()
-        idx_video += 1 # Próximo vídeo da lista
-        
+    
     cv2.destroyAllWindows()
 
 class InvestigationManager:
@@ -1391,9 +1420,7 @@ def jogar(agentes):
     media.tocar_ambiente("ambience.mp3")
 
 # --- ATIVANDO A TELA DE VIGILÂNCIA ---
-    global executando_cctv
-    executando_cctv = True        
-    # -------------------------------------
+    
     # Liga os sons aleatórios
     threading.Thread(target=ambiente_terror_background, daemon=True).start()
     
@@ -1429,6 +1456,14 @@ def jogar(agentes):
     while True:
         resp = input(f"{Cor.VERDE_NEON}>> DIGITE [S] E ENTER PARA INICIAR A MISSÃO...{Cor.RESET}").upper()
         if resp == 'S': break
+
+        print(f"{Cor.AZUL_CYBER}>> ESTABELECENDO CONEXÃO COM CÂMERAS...{Cor.RESET}")
+    time.sleep(1)
+
+    global executando_cctv
+    executando_cctv = True 
+    threading.Thread(target=sistema_omni_view, daemon=True).start()
+    # >>>>> FIM DA COLAGEM <<<<<
     
     # --- MOVA PARA CÁ (FORA DO LOOP, ALINHADO À ESQUERDA) ---
     tentativas_restantes = 2
