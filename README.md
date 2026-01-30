@@ -53,7 +53,7 @@ Este sistema requer Python 3.x e algumas bibliotecas de elite.
 Clone o repositório:
 
 Bash
-git clone https://github.com/SEU-USUARIO/CSI-PRO.git
+git clone https://github.com/Lucasssouza527/jogocsiwindows
 cd CSI-PRO
 Instale as dependências:
 
