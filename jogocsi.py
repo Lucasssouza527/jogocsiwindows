@@ -11,6 +11,20 @@ from datetime import datetime
 import sys
 import os
 
+def limpar_audios_antigos():
+    # Remove arquivos .mp3 que começam com "temp_voz_"
+    pasta_atual = os.getcwd()
+    try:
+        arquivos = os.listdir(os.path.join(pasta_atual, "assets", "audio"))
+        for arq in arquivos:
+            if arq.startswith("temp_voz_") and arq.endswith(".mp3"):
+                caminho = os.path.join(pasta_atual, "assets", "audio", arq)
+                try: os.remove(caminho)
+                except: pass
+    except: pass
+
+
+
 # --- FUNÇÃO OBRIGATÓRIA PARA O EXE FUNCIONAR ---
 def resource_path(relative_path):
     try:
@@ -1849,6 +1863,9 @@ def jogar(agentes):
 
         elif op == '7': break
 
+
 if __name__ == "__main__":
+    limpar_audios_antigos() 
     menu()
+    
     
